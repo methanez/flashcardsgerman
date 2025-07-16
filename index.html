@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Simple Flashcards</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .flashcards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .card {
+      background: #f0f0f0;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .card:hover {
+      background: #e0e0ff;
+    }
+
+    .buttons {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+
+    .page-info {
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Flashcards</h1>
+  <div class="flashcards" id="flashcard-container"></div>
+
+  <div class="buttons">
+    <button id="prev-btn">Previous</button>
+    <button id="next-btn">Next</button>
+  </div>
+
+  <div class="page-info" id="page-info"></div>
+
+  <script>
+
+    const flashcards = [
+  { front: "Bahnsteig", back: "Platform (der Bahnsteig)" },
+  { front: "ankommen", back: "to arrive" },
+  { front: "anrufen", back: "to call" },
+  { front: "einsteigen", back: "to get in (vehicle)" },
+  { front: "aussteigen", back: "to get out (of vehicle)" },
+  { front: "denken", back: "to think" },
+  { front: "fremd", back: "strange / foreign" },
+  { front: "umsteigen", back: "to change (trains/buses)" },
+  { front: "nehmen", back: "to take" },
+  { front: "abholen", back: "to pick up (someone/something)" },
+  { front: "Straßenbahn", back: "Tram (die Straßenbahn)" },
+  { front: "aufräumen", back: "to tidy up" },
+  { front: "einladen", back: "to invite" },
+  { front: "reden", back: "to talk" },
+  { front: "Paar", back: "Couple / pair (das Paar)" },
+  { front: "Reise", back: "Trip / journey (die Reise)" },
+  { front: "meinen", back: "to mean / to think" },
+  { front: "fertig", back: "finished / ready" },
+  { front: "langweilig", back: "boring" },
+  { front: "schwanger", back: "pregnant" },
+  { front: "mal (viermal)", back: "time(s) (e.g. four times)" },
+  { front: "gegangen", back: "gone (past participle of gehen)" },
+  { front: "fahren", back: "to drive / travel" },
+  { front: "abgefahren", back: "departed (vehicle)" },
+  { front: "Hochzeit", back: "Wedding (die Hochzeit)" },
+  { front: "Silvester", back: "New Year's Eve (das Silvester)" },
+  { front: "anfangen", back: "to start / begin" },
+  { front: "aufhören", back: "to stop / quit" },
+  { front: "feiern", back: "to celebrate" },
+  { front: "dauern", back: "to last (duration)" },
+  { front: "gefallen", back: "to please / to like (used with dative)" },
+  { front: "seit", back: "since / for (time)" },
+  { front: "springen", back: "to jump" },
+  { front: "Weg", back: "Path / way (der Weg)" },
+  { front: "abgebogen", back: "turned (past of abbiegen)" },
+  { front: "beschrieben", back: "described (past of beschreiben)" },
+  { front: "weitergefahren", back: "kept driving" },
+  { front: "gewendet", back: "turned around (vehicle)" },
+  { front: "zurückgefahren", back: "drove back" },
+  { front: "an", back: "on / at" },
+  { front: "auf", back: "on / onto" },
+  { front: "hinter", back: "behind" },
+  { front: "neben", back: "next to" },
+  { front: "über", back: "over / about" },
+  { front: "unter", back: "under / below" },
+  { front: "vor", back: "in front of / before" },
+  { front: "zwischen", back: "between" },
+  { front: "angemacht", back: "turned on / flirted" },
+  { front: "hat geholfen", back: "has helped" },
+  { front: "stimmen", back: "vote" },
+  { front: "beide", back: "both" },
+  { front: "Heizung", back: "Heater (die Heizung)" },
+  { front: "Bescheid sagen", back: "to inform / let someone know" },
+  { front: "Hilfe rufen", back: "to call for help" },
+  { front: "kümmern", back: "to take care of" },
+  { front: "hat geschickt", back: "has sent" },
+  { front: "sofort", back: "immediately" },
+  { front: "Lust", back: "Desire / mood (die Lust)" },
+  { front: "Lust haben", back: "to feel like (doing something)" },
+  { front: "Termine absagen", back: "to cancel appointments" },
+  { front: "hat abgesagt", back: "has canceled" },
+  { front: "vereinbaren", back: "to arrange / agree" },
+  { front: "verschieben", back: "to postpone" },
+  { front: "passen", back: "to fit / to suit" },
+  { front: "Passt es dir?", back: "Does it suit you?" },
+  { front: "Angst", back: "Fear (die Angst)" },
+  { front: "Angst haben", back: "to be afraid" },
+  { front: "Leben", back: "Life (das Leben)" },
+  { front: "Sitzung", back: "Meeting / session (die Sitzung)" },
+  { front: "ausmachen", back: "to turn off / arrange" },
+  { front: "mitnehmen", back: "to take along" },
+  { front: "tun, hat getan", back: "to do, has done" },
+  { front: "warten", back: "to wait" },
+  { front: "seltsam", back: "strange / weird" },
+  { front: "sicher", back: "safe / certain / surely" },
+  { front: "nichts", back: "nothing" },
+  { front: "selbst", back: "oneself / self" },
+  { front: "Sehr geehrte", back: "Dear (formal letter greeting)" },
+  { front: "Mit freundlichen Grüßen", back: "Best regards (formal letter ending)" },
+  { front: "anmelden", back: "to register / sign up" },
+  { front: "bekommen", back: "to receive / get" },
+  { front: "auf keinen Fall", back: "under no circumstances" },
+{ front: "vielleicht", back: "maybe / perhaps" },
+{ front: "unbedingt", back: "absolutely / definitely" },
+{ front: "anmelden", back: "to register / sign up" },
+{ front: "werden", back: "will / to become" },
+{ front: "Welt", back: "world" },
+{ front: "Wunsch", back: "wish" },
+{ front: "laufen", back: "to run / walk" },
+{ front: "Arme", back: "arms" },
+{ front: "hoch", back: "high / up" },
+{ front: "tun weh", back: "to hurt" },
+{ front: "Du Arme", back: "You poor thing (fem.)" },
+{ front: "nur wenig", back: "only a little" },
+{ front: "Das schaffe ich nicht", back: "I can't do it / manage it" },
+{ front: "Stunden / ungestunden", back: "hours / unscheduled" },
+{ front: "Gemüse", back: "vegetables" },
+{ front: "Husten", back: "cough" },
+{ front: "Practice", back: "practice / doctor's office (Praxis)" },
+{ front: "Salbe", back: "ointment" },
+{ front: "Schmerz", back: "pain" },
+{ front: "Schnupfen", back: "cold (stuffy nose)" },
+{ front: "Husten", back: "cough" },
+{ front: "Wehtun", back: "to hurt" },
+{ front: "Gesund", back: "healthy" },
+{ front: "Bauch", back: "belly / stomach" },
+{ front: "Auge", back: "eye" },
+{ front: "Bein", back: "leg" },
+{ front: "Brust", back: "chest / breast" },
+{ front: "Finger", back: "finger" },
+{ front: "Fuß", back: "foot" },
+{ front: "Hals", back: "throat / neck" },
+{ front: "Hand", back: "hand" },
+{ front: "Knie", back: "knee" },
+{ front: "Kopf", back: "head" },
+{ front: "Nase", back: "nose" },
+{ front: "Mund", back: "mouth" },
+{ front: "Ohr", back: "ear" },
+{ front: "Rücken", back: "back (body part)" },
+{ front: "Zahn", back: "tooth" },
+{ front: "bleiben", back: "to stay" },
+{ front: "geben", back: "to give" },
+{ front: "sollen", back: "should / supposed to" },
+{ front: "hoch", back: "high / up" },
+{ front: "doch", back: "but / however / after all" },
+  { front: "gegen", back: "against" },
+  { front: "abschließen", back: "to complete / finish" },
+  { front: "fertigschaffen", back: "to complete / accomplish (colloquial; better: 'fertigstellen')" },
+  { front: "eine Anzeige lesen", back: "to read an ad" },
+  { front: "eine Ausbildung abschließen", back: "to complete vocational training" },
+  { front: "sich an einer Sprachschule anmelden", back: "to register at a language school" },
+  { front: "Angst bekommen", back: "to become afraid" },
+  { front: "eine Prüfung schreiben", back: "to take an exam" },
+  { front: "einen Studienplan fertigschaffen", back: "to complete a study plan" },
+  { front: "Geld verdienen", back: "to earn money" },
+  { front: "heiraten", back: "to marry" },
+  { front: "um die Welt segeln", back: "to sail around the world" },
+  { front: "den Führerschein machen", back: "to get a driver’s license" },
+  { front: "Prüfung", back: "Exam (die Prüfung)" },
+  { front: "Ausbildung", back: "Training / apprenticeship (die Ausbildung)" },
+  { front: "Studienplatz", back: "University spot / place (der Studienplatz)" },
+  { front: "Anzeige", back: "Advertisement (die Anzeige)" },
+  { front: "Aufnahmeprüfung", back: "Entrance exam (die Aufnahmeprüfung)" },
+  { front: "bessere", back: "better (comparative form of 'gut')" },
+  { front: "schaffen", back: "create" },
+  { front: "verdienen", back: "to earn" },
+  { front: "Führerschein", back: "Driver’s license (der Führerschein)" },
+  { front: "Reisen", back: "Travels (die Reisen – plural of 'die Reise')" }
+];
+
+
+    const cardsPerPage = 10;
+    let currentPage = 1;
+
+    const container = document.getElementById("flashcard-container");
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+    const pageInfo = document.getElementById("page-info");
+    
+    function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+    function renderCards() {
+      container.innerHTML = "";
+      const start = (currentPage - 1) * cardsPerPage;
+      const end = start + cardsPerPage;
+      const cardsToShow = flashcards.slice(start, end);
+
+      cardsToShow.forEach(card => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.textContent = card.front;
+
+        div.addEventListener("click", () => {
+          if (div.textContent === card.front) {
+            div.textContent = card.back;
+          } else {
+            div.textContent = card.front;
+          }
+        });
+
+        container.appendChild(div);
+      });
+
+      pageInfo.textContent = `Page ${currentPage} of ${Math.ceil(flashcards.length / cardsPerPage)}`;
+      prevBtn.disabled = currentPage === 1;
+      nextBtn.disabled = end >= flashcards.length;
+    }
+
+    prevBtn.addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderCards();
+      }
+    });
+
+    nextBtn.addEventListener("click", () => {
+      if ((currentPage * cardsPerPage) < flashcards.length) {
+        currentPage++;
+        renderCards();
+      }
+    });
+    shuffle(flashcards);
+    renderCards();
+  </script>
+
+</body>
+</html>
