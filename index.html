@@ -66,7 +66,7 @@
 
     .flashcards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: 1fr;
       gap: 20px;
     }
 
@@ -161,7 +161,6 @@
   </header>
 
   <div class="container">
-
     <div class="controls">
       <button id="prev-btn"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>Prev</button>
       <button id="next-btn">Next<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
@@ -177,7 +176,7 @@
   </div>
 
   <script>
-     const flashcards = [
+    const flashcards = [
   { front: "Bahnsteig", back: "Platform (der Bahnsteig)" },
 { front: "Abkürzungen", back: "Abbreviations (die Abkürzungen)" },
 { front: "ca.", back: "circa / approximately (circa)" },
@@ -1556,28 +1555,24 @@
   { "front": "zwischen", "back": "between – Zwischen acht und zehn Uhr bin ich zu Hause." }
 ];
 
-flashcards.forEach((card, index) => {
-  card.id = index;
-});
-
+    flashcards.forEach((card, index) => {
+      card.id = index;
+    });
 
     let currentPage = 1;
-    const cardsPerPage = 4;
+    const cardsPerPage = 1; // Only one card at a time
     let showFront = true;
     let flashcardPool = [];
     let reviewOnlyUnknown = false;
     const knownStatus = JSON.parse(localStorage.getItem("knownStatus") || "{}");
 
     function shuffleWeighted(cards) {
-      let activeCards = cards;
-      if (reviewOnlyUnknown) {
-        activeCards = cards.filter(card => knownStatus[card.id] !== true);
-      }
+      let activeCards = reviewOnlyUnknown
+        ? cards.filter(card => knownStatus[card.id] !== true)
+        : cards;
+
       flashcardPool = activeCards
-        .map(card => {
-          const weight = knownStatus[card.id] === false ? 3 : 1;
-          return Array(weight).fill(card);
-        })
+        .map(card => Array(knownStatus[card.id] === false ? 3 : 1).fill(card))
         .flat()
         .sort(() => Math.random() - 0.5);
     }
@@ -1615,13 +1610,13 @@ flashcards.forEach((card, index) => {
       cardsToShow.forEach(card => {
         const cardDiv = document.createElement("div");
         cardDiv.className = "card";
-        cardDiv.innerHTML = `<div class="text">${showFront ? card.front : card.back}</div>`;
+        const textDiv = document.createElement("div");
+        textDiv.className = "text";
+        textDiv.textContent = showFront ? card.front : card.back;
+        cardDiv.appendChild(textDiv);
 
         cardDiv.addEventListener("click", () => {
-          const textDiv = cardDiv.querySelector(".text");
-          textDiv.textContent = textDiv.textContent === (showFront ? card.front : card.back)
-            ? (showFront ? card.back : card.front)
-            : (showFront ? card.front : card.back);
+          textDiv.textContent = textDiv.textContent === card.front ? card.back : card.front;
         });
 
         const btnContainer = document.createElement("div");
